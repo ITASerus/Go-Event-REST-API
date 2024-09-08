@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ITASerus/Go-Event-REST-API/models"
+	"github.com/ITASerus/Go-Event-REST-API/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,5 +42,11 @@ func login(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	token, err := utils.GenerateToken(user.Email, user.ID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
