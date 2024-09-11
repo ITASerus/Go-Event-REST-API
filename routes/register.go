@@ -8,6 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func getRegistrations(context *gin.Context) {
+	events, err := models.GetAllRegistrations()
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch registrations. Try again later."})
+		return
+	}
+
+	context.JSON(http.StatusOK, events) // Response in JSON format
+}
+
 func registerForEvent(context *gin.Context) {
 	userId := context.GetInt64("userId")
 	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
@@ -34,6 +45,10 @@ func registerForEvent(context *gin.Context) {
 func cancelRegistration(context *gin.Context) {
 	userId := context.GetInt64("userId")
 	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse event id."})
+		return
+	}
 
 	var event models.Event
 	event.ID = eventId
@@ -44,5 +59,5 @@ func cancelRegistration(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"message": "Cancelled"})
+	context.JSON(http.StatusOK, gin.H{"message": "Cancelled"})
 }
